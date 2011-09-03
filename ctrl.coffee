@@ -99,24 +99,4 @@ class Ctrl
       zipped[i] = [ar1[i], ar2[i...ar2.length]]
     zipped
 
-oneArgTimeout = (seconds, callback) ->
-  setTimeout(
-    ->
-      callback(seconds)
-    seconds * 1000
-  )
-
-twoArgTimeout = (seconds, message, callback) ->
-  setTimeout(
-    ->
-      callback(seconds, message)
-    seconds * 1000
-  )
-
-Ctrl.new(
-  (ctrl) ->
-    twoArgTimeout 2, "hi", ctrl.collect()
-    twoArgTimeout 1, "bye", ctrl.collect()
-  (ctrl) ->
-    console.log(ctrl.results)
-)
+module.exports = Ctrl
