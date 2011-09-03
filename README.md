@@ -6,8 +6,7 @@ What's wrong with TameJS or Flow or Step?  Well, I'm a Rubyist and CoffeeScript 
 TameJS doesn't play well with CoffeeScript because of the extra
 compilation step.  Plus the code that TameJS compiles down to is pretty heinous.
 
-Being a Rubyist, I admire clean and simple code.  I didn't like how
-results are passed in either Flow or Step.  Plus, both Flow and Step
+I didn't like how results are passed in either Flow or Step.  Plus, both Flow and Step
 make use of `this`, which is no good for me since I want to use them from
 within objects and I want `this` to refer to my object.
 
@@ -213,8 +212,8 @@ using Step or Flow.  Each step took different arguments and thus my
 indentation wasn't pretty.
 
 Also, both Step and Flow do some funky stuff with bindings which changes
-`this` in the scope of a step.  I didn't like that because (being a
-Rubyist), I use "classes" a lot.  I want `this` to refer to the object
+`this` in the scope of a step.  I didn't like that because, I use "classes"
+a lot.  I want `this` to refer to the object
 I'm in so I can use "instances variables" and "instance methods".  I
 know I can work around this with Flow and Step by using closures, but it
 didn't make for pretty code.
