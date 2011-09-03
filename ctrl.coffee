@@ -1,11 +1,3 @@
-myTimeout = (msg, time, callback) ->
-  setTimeout(
-    ->
-      callback(msg, time)
-    time
-  )
-
-
 class Ctrl
 
   # Convenience method to create a Ctrl instance and call exec on it.
