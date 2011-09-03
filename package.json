@@ -1,0 +1,17 @@
+{
+  "author": "Christopher J. Bottaro <cjbottaro@alumni.cs.utexas.edu>",
+  "name": "ctrl",
+  "description": "A simple flow control library for Javascript similar to Flow or Step",
+  "version": "0.1.0",
+  "homepage": "https://github.com/cjbottaro/ctrl",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/cjbottaro/ctrl.git"
+  },
+  "main": "ctrl.js",
+  "engines": {
+    "node": "~v0.4.11"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
