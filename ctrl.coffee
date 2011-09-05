@@ -6,8 +6,8 @@ class Ctrl
       @cont = cont # Continuation to call once the step is complete.
       @async_started  = 0
       @async_finished = 0
-      @i_results = []
-      @n_results = {}
+      @a_results = [] # Array results
+      @h_results = {} # Hash results
 
     execute: (ctrl) ->
       @func(ctrl)
@@ -20,9 +20,9 @@ class Ctrl
       (results...) =>
         if names.length > 0
           for [name, result] in Ctrl.zip(names, results)
-            @n_results[name] = result
+            @h_results[name] = result
         else
-          @i_results[index] = results
+          @a_results[index] = results
         @async_finished += 1
         @finished() if @async_started == @async_finished
 
@@ -30,7 +30,7 @@ class Ctrl
       # Compact the indexed results and flatten any that are single
       # element arrays.
       @results = []
-      for result in @i_results
+      for result in @a_results
         if result?
           if result.length == 1
             @results.push(result[0])
@@ -38,7 +38,7 @@ class Ctrl
             @results.push(result)
 
       # No processing needs to be done on named results.
-      @named_results = @n_results
+      @named_results = @h_results
 
       # Provided as a convenience.
       @result = @results[0]

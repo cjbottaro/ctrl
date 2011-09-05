@@ -26,8 +26,8 @@ describe "Ctrl.Step", ->
           @finished = true
       )
     it "should prepare results and call the continuation", ->
-      @step.i_results = [[1], null, [2], [3], [4, 5]]
-      @step.n_results = { r1 : 1, r2 : 2 }
+      @step.a_results = [[1], null, [2], [3], [4, 5]]
+      @step.h_results = { r1 : 1, r2 : 2 }
       @step.finished()
       expect(@step.result).toEqual(1)
       expect(@step.results).toEqual([1, 2, 3, [4, 5]])
@@ -43,15 +43,15 @@ describe "Ctrl.Step", ->
       c2 = @step.collect()
       c2(2, 3)
       c1(1)
-      expect(@step.i_results).toEqual([[1], [2, 3]])
+      expect(@step.a_results).toEqual([[1], [2, 3]])
     it "should collect named results into a hash", ->
       @step.collect("r1")(1)
       @step.collect("r2")(2, 3)
       @step.collect("r3", "r4")(4, 5, 6)
       @step.collect("r7", "r8")(7, 8)
-      expect(@step.n_results.r1).toEqual(1)
-      expect(@step.n_results.r2).toEqual([2, 3])
-      expect(@step.n_results.r3).toEqual(4)
-      expect(@step.n_results.r4).toEqual([5, 6])
-      expect(@step.n_results.r7).toEqual(7)
-      expect(@step.n_results.r8).toEqual(8)
+      expect(@step.h_results.r1).toEqual(1)
+      expect(@step.h_results.r2).toEqual([2, 3])
+      expect(@step.h_results.r3).toEqual(4)
+      expect(@step.h_results.r4).toEqual([5, 6])
+      expect(@step.h_results.r7).toEqual(7)
+      expect(@step.h_results.r8).toEqual(8)
