@@ -10,6 +10,17 @@ I didn't like how results are passed in either Flow or Step.  Plus, both Flow an
 make use of `this`, which is no good for me since I want to use them from
 within objects and I want `this` to refer to my object.
 
+## Installation
+
+Ctrl is not in npm yet, so you have to install manually.
+
+    cd node_modules
+    git clone git://github.com/cjbottaro/ctrl.git
+
+Then in a Javascript file.
+
+    Ctrl = require("ctrl")
+
 ## Conventions in this README
 
 All examples are written in CoffeeScript.  Also, I make use of two
