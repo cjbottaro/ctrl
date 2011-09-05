@@ -1,8 +1,7 @@
 class Ctrl
 
   class Ctrl.Step
-    constructor: (ctrl, func, cont) ->
-      @ctrl = ctrl # Ctrl object to be passed to the step's function.
+    constructor: (func, cont) ->
       @func = func # Function that constitutes the step.
       @cont = cont # Continuation to call once the step is complete.
       @async_started  = 0
@@ -10,8 +9,8 @@ class Ctrl
       @i_results = []
       @n_results = {}
 
-    execute: ->
-      @func(@ctrl)
+    execute: (ctrl) ->
+      @func(ctrl)
       @finished() if @async_started == 0
 
     collect: (names...) ->
@@ -71,7 +70,7 @@ class Ctrl
 
   # Given a list of steps (functions) execute them serially, even if each step contains async code.
   exec: (funcs...) ->
-    @steps   = (new Ctrl.Step(@, func, @execNextStep) for func in funcs)
+    @steps   = (new Ctrl.Step(func, @execNextStep) for func in funcs)
     @index   = -1
     @execNextStep()
 

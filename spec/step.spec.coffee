@@ -8,7 +8,6 @@ describe "Ctrl.Step", ->
     it "should immediately call the continuation if there were no calls to collect", ->
       finished = false
       step = new Ctrl.Step(
-        null
         ->
           null
         ->
@@ -21,7 +20,6 @@ describe "Ctrl.Step", ->
     beforeEach ->
       @finished = false
       @step = new Ctrl.Step(
-        null
         =>
           null
         =>
