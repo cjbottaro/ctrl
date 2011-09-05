@@ -13,5 +13,6 @@
     "node": "~v0.4.11"
   },
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {},
+  "test": "jasmine-node --color --coffee spec"
 }

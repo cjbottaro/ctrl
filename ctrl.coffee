@@ -43,14 +43,15 @@ class Ctrl
       return
 
     # Results by index
-    results = (result for result in @i_results[@index-1] when result?)
-    if results?
-      @result  = results[0]
-      @result  = @result[0] if @result.length == 1
-      @results = results
-    else
-      @result  = null
-      @results = []
+    results = []
+    for result in @i_results[@index-1]
+      if result?
+        if result.length == 1
+          results.push(result[0])
+        else
+          results.push(result)
+    @result  = results[0]
+    @results = results
 
     # Results by name
     results = @n_results[@index-1]
