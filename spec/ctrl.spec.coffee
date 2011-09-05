@@ -164,4 +164,3 @@ describe "Ctrl", ->
           done = true
       )
       waitsFor -> done
-
