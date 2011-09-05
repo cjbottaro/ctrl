@@ -8,6 +8,8 @@ class Ctrl
       @async_finished = 0
       @a_results = [] # Array results
       @h_results = {} # Hash results
+      @_stop = false
+      @done = false
 
     execute: (ctrl) ->
       @func(ctrl)
@@ -74,6 +76,9 @@ class Ctrl
     @index   = -1
     @execNextStep()
 
+  stop: ->
+    @_stop = true
+
   currentStep: ->
     @steps[@index]
 
@@ -92,7 +97,10 @@ class Ctrl
       @result        = null
       @results       = []
       @named_results = {}
-    current_step.execute(@) if current_step?
+    if current_step? and not @_stop?
+      current_step.execute(@)
+    else
+      @done = true
 
   collect: (names...) ->
     @currentStep().collect(names...)

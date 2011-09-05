@@ -189,6 +189,30 @@ Which results in:
     2
     bye
 
+## Stopping execution
+
+What happens if a step results in an error and we want to stop execution
+of any remaining steps.  That's what the `stop` method is for.
+
+    Ctrl.new(
+      (ctrl) ->
+        redis.get key, ctrl.collect()
+      (ctrl) ->
+        error = ctrl.result[0]
+        value = ctrl.result[1]
+        if error?
+          console.log("oops, error with redis: #{error}")
+          ctrl.stop()
+        else
+          redis.get value, ctrl.collect()
+      (ctrl) ->
+        error = ctrl.result[0]
+        value = ctrl.result[1]
+        console.log("final value is #{value}")
+    )
+
+If there is an error, then the 3rd step will never be executed.
+
 ## Conveniences
 
 You don't have to pass the Ctrl object to each step.  You can just use

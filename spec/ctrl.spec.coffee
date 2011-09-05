@@ -164,3 +164,22 @@ describe "Ctrl", ->
           done = true
       )
       waitsFor -> done
+
+  describe "calling stop", ->
+    it "should prevent subsequent steps from running", ->
+      runs ->
+        @count = 0
+        @ctrl = Ctrl.new(
+          (ctrl) =>
+            oneArgCallback 1, ctrl.collect()
+            @count += 1
+          (ctrl) =>
+            ctrl.stop()
+            @count += 1
+            oneArgCallback 1, ctrl.collect()
+          (ctrl) =>
+            @count += 1
+        )
+      waitsFor -> @ctrl.done?
+      runs ->
+        expect(@count).toEqual(2)
