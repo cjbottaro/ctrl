@@ -234,9 +234,10 @@ not using the proper terminology.
 
 ## Tests
 
-Tests are to come.  Being a Rubyist, it's embarrassing to not have
-tests, but I'm new to JS and it's going to take a little while to ramp up
-on setting up a testing framework.
+    jasmine-node --color --coffee spec
+
+This assumes you have `jasmine-node` and `coffee-script` installed
+globally and that you are in the root dir of the Ctrl project.
 
 ## Please help me
 
