@@ -194,7 +194,7 @@ Which results in:
 You don't have to pass the Ctrl object to each step.  You can just use
 the power of closures instead.
 
-    ctrl = Ctrl.new
+    ctrl = Ctrl.new()
     ctrl.exec(
       ->
         oneArgTimeout 1, ctrl.collect()
