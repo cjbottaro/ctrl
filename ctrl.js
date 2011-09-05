@@ -13,6 +13,8 @@
         this.async_finished = 0;
         this.a_results = [];
         this.h_results = {};
+        this._stop = false;
+        this.done = false;
       }
       Step.prototype.execute = function(ctrl) {
         this.func(ctrl);
@@ -101,6 +103,9 @@
       this.index = -1;
       return this.execNextStep();
     };
+    Ctrl.prototype.stop = function() {
+      return this._stop = true;
+    };
     Ctrl.prototype.currentStep = function() {
       return this.steps[this.index];
     };
@@ -121,8 +126,10 @@
         this.results = [];
         this.named_results = {};
       }
-      if (current_step != null) {
+      if ((current_step != null) && !(this._stop != null)) {
         return current_step.execute(this);
+      } else {
+        return this.done = true;
       }
     };
     Ctrl.prototype.collect = function() {
