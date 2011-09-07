@@ -14,12 +14,16 @@ within objects and I want `this` to refer to my object.
 
 Ctrl is not in `npm` yet, so you have to install manually.
 
+```bash
     cd node_modules
     git clone git://github.com/cjbottaro/ctrl.git
+```
 
 Then in a Javascript file.
 
+```javascript
     var Ctrl = require("ctrl");
+```
 
 ## Conventions in this README
 
@@ -29,8 +33,10 @@ All examples are written in Javascript, if you want the CoffeeScript
   
 I make use of two contrived async functions to demonstrate how Ctrl works.
 
+```javascript
     oneArgTimeout(n, callback);
     twoArgTimeout(n, message, callback);
+```
 
 `oneArgTimeout` calls `callback` after `n` seconds.  It passes `n` to
 the callback.
@@ -40,9 +46,11 @@ to the callback.
 
 Example:
 
+```javascript
     twoArgTimeout(5, "I slept", function(n, message) {
       console.log(message + "for "  + n + "seconds");
     });
+```
 
 Outputs:
 
@@ -53,6 +61,7 @@ Outputs:
 Consider this code that is trying to execute each call to
 `oneArgTimeout` serially.
 
+```javascript
     oneArgTimeout(1, function(n) {
       console.log("slept for " + n);
       oneArgTimeout(2, function(n) {
@@ -62,9 +71,11 @@ Consider this code that is trying to execute each call to
         });
       });
     });
+```
 
 Here's how we would "un-nest" it with Ctrl.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         oneArgTimeout(1, ctrl.collect());
@@ -80,11 +91,13 @@ Here's how we would "un-nest" it with Ctrl.
       function(ctrl) {
         console.log("slept for " + ctrl.result);
       });
+```
 
 ## Problem: synchronizing async calls
 
 Consider the following code that is trying to execute both calls to `oneArgTimeout` in parallel, collect the results, and then call `weAreDone` with the results after both of them are finished.
 
+```javascript
     var finished_count = 0
     var results = []
     callback = function(result) {
@@ -96,9 +109,11 @@ Consider the following code that is trying to execute both calls to `oneArgTimeo
 
     oneArgTimeout(1, callback);
     oneArgTimeout(1, callback);
+```
 
 Now with Ctrl.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         oneArgTimeout(1, ctrl.collect());
@@ -108,6 +123,7 @@ Now with Ctrl.
         weAreDone(ctrl.results);
       }
     );
+```
 
 Oh man, that was sweet.
 
@@ -124,6 +140,7 @@ as access results from the previous step.
 If you call `collect` only once in a step, then you can access the
 results with `result` (notice it's singular) from the next step.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         oneArgTimeout(1.2, ctrl.collect());
@@ -132,11 +149,12 @@ results with `result` (notice it's singular) from the next step.
         console.log(ctrl.result)
       }
     );
+```
 
 That outputs `1.2`, but what if the callback is invoked with multiple
 arguments?
 
-
+```javascript
     Ctrl.run(
       function(ctrl) {
         twoArgTimeout(1.2, "hi", ctrl.collect());
@@ -145,6 +163,7 @@ arguments?
         console.log(ctrl.result);
       }
     );
+```
 
 That outputs `[ 1.2, 'hi' ]`, i.e. `ctrl.result` is an array.
 
@@ -153,6 +172,7 @@ That outputs `[ 1.2, 'hi' ]`, i.e. `ctrl.result` is an array.
 If `collect` is called multiple times, then `results` (notice it's
 plural) holds the results corresponding to each call of `collect`.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         twoArgTimeout(2, "hi", ctrl.collect());
@@ -162,6 +182,7 @@ plural) holds the results corresponding to each call of `collect`.
         console.log(ctrl.results);
       }
     );
+```
 
 That outputs `[ [ 2, 'hi' ], [ 1, 'bye' ] ]`.
 
@@ -174,6 +195,7 @@ order in which the callbacks are executed.
 `named_results` being a hash (or I guess object in JS) where the keys
 correspond to the arguments.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         twoArgTimeout(1, "hi", ctrl.collect("result1"));
@@ -184,14 +206,18 @@ correspond to the arguments.
         console.log(ctrl.named_results["result2"]);
       }
     );
+```
 
 Results in the output:
 
+```javascript
     [ 1, "hi" ]
     [ 2, "bye" ]
+```
 
 Or you can unpack arguments into discrete keys.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         twoArgTimeout(1, "hi", ctrl.collect("time1", "message1"));
@@ -204,6 +230,7 @@ Or you can unpack arguments into discrete keys.
         console.log(ctrl.named_results["message2"]);
       }
     );
+```
 
 Which results in:
 
@@ -217,6 +244,7 @@ Which results in:
 What happens if a step results in an error and we want to stop execution
 of any remaining steps.  That's what the `stop` method is for.
 
+```javascript
     Ctrl.run(
       function(ctrl) {
         redis.get(key, ctrl.collect());
@@ -237,6 +265,7 @@ of any remaining steps.  That's what the `stop` method is for.
         console.log("final value is " + value);
       }
     );
+```
 
 If there is an error, then the 3rd step will never be executed.
 
@@ -245,6 +274,7 @@ If there is an error, then the 3rd step will never be executed.
 You don't have to pass the Ctrl object to each step.  You can just use
 the power of closures instead.
 
+```javascript
     ctrl = new Ctrl;
     ctrl.run(
       function() {
@@ -254,6 +284,7 @@ the power of closures instead.
         console.log(ctrl.result);
       }
     );
+```
 
 Anytime a one element array would be returned in the results, just the
 element will be returned instead.
