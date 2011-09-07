@@ -74,6 +74,7 @@
       }
       return ctrl;
     };
+    Ctrl.run = Ctrl["new"];
     Ctrl.zip = function(ar1, ar2) {
       var i, zipped;
       zipped = [];
@@ -103,6 +104,7 @@
       this.index = -1;
       return this.execNextStep();
     };
+    Ctrl.prototype.run = Ctrl.prototype.exec;
     Ctrl.prototype.stop = function() {
       return this._stop = true;
     };

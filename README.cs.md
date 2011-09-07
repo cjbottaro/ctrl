@@ -19,15 +19,15 @@ Ctrl is not in npm yet, so you have to install manually.
 
 Then in a Javascript file.
 
-    var Ctrl = require("ctrl");
+    Ctrl = require("ctrl")
 
 ## Conventions in this README
 
 All examples are written in CoffeeScript.  Also, I make use of two
 contrived async functions to demonstrate how Ctrl works.
 
-    oneArgTimeout(n, callback);
-    twoArgTimeout(n, message, callback);
+    oneArgTimeout(n, callback)
+    twoArgTimeout(n, message, callback)
 
 `oneArgTimeout` calls `callback` after `n` seconds.  It passes `n` to
 the callback.
@@ -37,9 +37,8 @@ to the callback.
 
 Example:
 
-    twoArgTimeout(5, "I slept", function(n, message) {
-      console.log(message + "for "  + n "seconds");
-    });
+    twoArgTimeout 5, "I slept", (n, message) ->
+      console.log("#{message} for #{n} seconds")
 
 Outputs:
 
@@ -50,61 +49,52 @@ Outputs:
 Consider this code that is trying to execute each call to
 `oneArgTimeout` serially.
 
-    oneArgTimeout(1, function(n) {
-      console.log("slept for " + n);
-      oneArgTimeout(2, function(n) {
-        console.log("slept for " + n);
-        oneArgTimeout(3, function(n) {
-          console.log("slept for " + n);
-        });
-      });
-    });
+    oneArgTimeout 1, (n) ->
+      console.log("slept for #{n}")
+      oneArgTimeout 2, (n) ->
+        console.log("slept for #{n}")
+        oneArgTimeout 3, (n) ->
+          console.log("slept for #{n}")
 
 Here's how we would "un-nest" it with Ctrl.
 
-    Ctrl.new(
-      function(ctrl) {
-        oneArgTimeout(1, ctrl.collect());
-      },
-      function(ctrl) {
-        console.log("slept for " + ctrl.result);
-        oneArgTimeout(2, ctrl.collect());
-      },
-      function(ctrl) {
-        console.log("slept for " + ctrl.result);
-        oneArgTimeout(3, ctrl.collect());
-      },
-      function(ctrl) {
-        console.log("slept for " + ctrl.result);
-      });
+    Ctrl.run(
+      (ctrl) ->
+        oneArgTimeout 1, ctrl.collect()
+      (ctrl) ->
+        console.log("slept for #{ctrl.result}")
+        oneArgTimeout 2, ctrl.collect()
+      (ctrl) ->
+        console.log("slept for #{ctrl.result}")
+        oneArgTimeout 3, ctrl.collect()
+      (ctrl) ->
+        console.log("slept for #{ctrl.result}")
+    )
 
 ## Problem: synchronizing async calls
 
 Consider the following code that is trying to execute both calls to `oneArgTimeout` in parallel, collect the results, and then call `weAreDone` with the results after both of them are finished.
 
-    var finished_count = 0
-    var results = []
-    callback = function(result) {
-      finished_count = finished_count + 1
+    finished_count = 0
+    results = []
+    callback = (result) ->
+      finished_count += 1
       results.push(result)
-      if (finished_count == 2)
-        weAreDone(results);
-    };
+      if finished_count == 2
+        weAreDone(results)
 
-    oneArgTimeout(1, callback);
-    oneArgTimeout(1, callback);
+    oneArgTimeout(1, callback)
+    oneArgTimeout(1, callback)
 
 Now with Ctrl.
 
-    Ctrl.new(
-      function(ctrl) {
-        oneArgTimeout(1, ctrl.collect());
-        oneArgTimeout(1, ctrl.collect());
-      },
-      function(ctrl) {
-        weAreDone(ctrl.results);
-      }
-    );
+    Ctrl.run(
+      (ctrl) ->
+        oneArgTimeout(1, ctrl.collect())
+        oneArgTimeout(1, ctrl.collect())
+      (ctrl) ->
+        weAreDone(ctrl.results)
+    )
 
 Oh man, that was sweet.
 
@@ -121,7 +111,7 @@ as access results from the previous step.
 If you call `collect` only once in a step, then you can access the
 results with `result` (notice it's singular) from the next step.
 
-    Ctrl.new(
+    Ctrl.run(
       (ctrl) ->
         oneArgTimeout 1.2, ctrl.collect()
       (ctrl) ->
@@ -132,7 +122,7 @@ That outputs `1.2`, but what if the callback is invoked with multiple
 arguments?
 
 
-    Ctrl.new(
+    Ctrl.run(
       (ctrl) ->
         twoArgTimeout 1.2, "hi", ctrl.collect()
       (ctrl) ->
@@ -146,7 +136,7 @@ That outputs `[ 1.2, 'hi' ]`, i.e. `ctrl.result` is an array.
 If `collect` is called multiple times, then `results` (notice it's
 plural) holds the results corresponding to each call of `collect`.
 
-    Ctrl.new(
+    Ctrl.run(
       (ctrl) ->
         twoArgTimeout 2, "hi", ctrl.collect()
         twoArgTimeout 1, "bye", ctrl.collect()
@@ -165,13 +155,13 @@ order in which the callbacks are executed.
 `named_results` being a hash (or I guess object in JS) where the keys
 correspond to the arguments.
 
-    Ctrl.new(
+    Ctrl.run(
       (ctrl) ->
         twoArgTimeout 1, "hi", ctrl.collect("result1")
         twoArgTimeout 2, "bye", ctrl.collect("result2")
       (ctrl) ->
-        console.log(ctrl.named_results["result1"))
-        console.log(ctrl.named_results["result2"))
+        console.log(ctrl.named_results["result1"])
+        console.log(ctrl.named_results["result2"])
     )
 
 Results in the output:
@@ -181,15 +171,15 @@ Results in the output:
 
 Or you can unpack arguments into discrete keys.
 
-    Ctrl.new(
+    Ctrl.run(
       (ctrl) ->
         twoArgTimeout 1, "hi", ctrl.collect("time1", "message1")
         twoArgTimeout 2, "bye", ctrl.collect("time2", "message2")
       (ctrl) ->
-        console.log(ctrl.named_results["time1"))
-        console.log(ctrl.named_results["message1"))
-        console.log(ctrl.named_results["time2"))
-        console.log(ctrl.named_results["message2"))
+        console.log(ctrl.named_results["time1"])
+        console.log(ctrl.named_results["message1"])
+        console.log(ctrl.named_results["time2"])
+        console.log(ctrl.named_results["message2"])
     )
 
 Which results in:
@@ -204,7 +194,7 @@ Which results in:
 What happens if a step results in an error and we want to stop execution
 of any remaining steps.  That's what the `stop` method is for.
 
-    Ctrl.new(
+    Ctrl.run(
       (ctrl) ->
         redis.get key, ctrl.collect()
       (ctrl) ->
@@ -229,7 +219,7 @@ You don't have to pass the Ctrl object to each step.  You can just use
 the power of closures instead.
 
     ctrl = Ctrl.new()
-    ctrl.exec(
+    ctrl.run(
       ->
         oneArgTimeout 1, ctrl.collect()
       ->

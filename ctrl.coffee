@@ -56,6 +56,9 @@ class Ctrl
     ctrl.exec(steps...) if steps.length > 0
     ctrl
 
+  # Alias new to run.
+  @run = @new
+
   # This isn't a generic zipping function.  It assumes that ar1 has at least one item.
   # Also, if ar2 has more items than ar1, then ar1's last item will be zipped with the
   # remainding items of ar2 (which is contrary to how Ruby's Array#zip works.
@@ -75,6 +78,9 @@ class Ctrl
     @steps   = (new Ctrl.Step(func, @execNextStep) for func in funcs)
     @index   = -1
     @execNextStep()
+
+  # Alias exec as run.
+  run: Ctrl.prototype.exec
 
   stop: ->
     @_stop = true
