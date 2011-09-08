@@ -69,18 +69,18 @@ oneArgTimeout 1, (n) ->
 Here's how we would "un-nest" it with Ctrl.
 
 ```coffeescript
-    Ctrl.run(
-      (ctrl) ->
-        oneArgTimeout 1, ctrl.collect()
-      (ctrl) ->
-        console.log("slept for #{ctrl.result}")
-        oneArgTimeout 2, ctrl.collect()
-      (ctrl) ->
-        console.log("slept for #{ctrl.result}")
-        oneArgTimeout 3, ctrl.collect()
-      (ctrl) ->
-        console.log("slept for #{ctrl.result}")
-    )
+Ctrl.run(
+  (ctrl) ->
+    oneArgTimeout 1, ctrl.collect()
+  (ctrl) ->
+    console.log("slept for #{ctrl.result}")
+    oneArgTimeout 2, ctrl.collect()
+  (ctrl) ->
+    console.log("slept for #{ctrl.result}")
+    oneArgTimeout 3, ctrl.collect()
+  (ctrl) ->
+    console.log("slept for #{ctrl.result}")
+)
 ```
 
 ## Problem: synchronizing async calls
@@ -103,13 +103,13 @@ oneArgTimeout(1, callback)
 Now with Ctrl.
 
 ```coffeescript
-    Ctrl.run(
-      (ctrl) ->
-        oneArgTimeout(1, ctrl.collect())
-        oneArgTimeout(1, ctrl.collect())
-      (ctrl) ->
-        weAreDone(ctrl.results)
-    )
+Ctrl.run(
+  (ctrl) ->
+    oneArgTimeout(1, ctrl.collect())
+    oneArgTimeout(1, ctrl.collect())
+  (ctrl) ->
+    weAreDone(ctrl.results)
+)
 ```
 
 Oh man, that was sweet.
@@ -128,12 +128,12 @@ If you call `collect` only once in a step, then you can access the
 results with `result` (notice it's singular) from the next step.
 
 ```coffeescript
-    Ctrl.run(
-      (ctrl) ->
-        oneArgTimeout 1.2, ctrl.collect()
-      (ctrl) ->
-        console.log(ctrl.result)
-    )
+Ctrl.run(
+  (ctrl) ->
+    oneArgTimeout 1.2, ctrl.collect()
+  (ctrl) ->
+    console.log(ctrl.result)
+)
 ```
 
 That outputs `1.2`, but what if the callback is invoked with multiple
@@ -141,12 +141,12 @@ arguments?
 
 
 ```coffeescript
-    Ctrl.run(
-      (ctrl) ->
-        twoArgTimeout 1.2, "hi", ctrl.collect()
-      (ctrl) ->
-        console.log(ctrl.result)
-    )
+Ctrl.run(
+  (ctrl) ->
+    twoArgTimeout 1.2, "hi", ctrl.collect()
+  (ctrl) ->
+    console.log(ctrl.result)
+)
 ```
 
 That outputs `[ 1.2, 'hi' ]`, i.e. `ctrl.result` is an array.
@@ -157,13 +157,13 @@ If `collect` is called multiple times, then `results` (notice it's
 plural) holds the results corresponding to each call of `collect`.
 
 ```coffeescript
-    Ctrl.run(
-      (ctrl) ->
-        twoArgTimeout 2, "hi", ctrl.collect()
-        twoArgTimeout 1, "bye", ctrl.collect()
-      (ctrl) ->
-        console.log(ctrl.results)
-    )
+Ctrl.run(
+  (ctrl) ->
+    twoArgTimeout 2, "hi", ctrl.collect()
+    twoArgTimeout 1, "bye", ctrl.collect()
+  (ctrl) ->
+    console.log(ctrl.results)
+)
 ```
 
 That outputs `[ [ 2, 'hi' ], [ 1, 'bye' ] ]`.
