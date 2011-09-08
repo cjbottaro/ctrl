@@ -14,20 +14,26 @@ within objects and I want `this` to refer to my object.
 
 Ctrl is not in npm yet, so you have to install manually.
 
-    cd node_modules
-    git clone git://github.com/cjbottaro/ctrl.git
+```bash
+cd node_modules
+git clone git://github.com/cjbottaro/ctrl.git
+```
 
 Then in a Javascript file.
 
-    Ctrl = require("ctrl")
+```javascript
+Ctrl = require("ctrl")
+```
 
 ## Conventions in this README
 
 All examples are written in CoffeeScript.  Also, I make use of two
 contrived async functions to demonstrate how Ctrl works.
 
-    oneArgTimeout(n, callback)
-    twoArgTimeout(n, message, callback)
+```coffeescript
+oneArgTimeout(n, callback)
+twoArgTimeout(n, message, callback)
+```
 
 `oneArgTimeout` calls `callback` after `n` seconds.  It passes `n` to
 the callback.
@@ -62,6 +68,7 @@ oneArgTimeout 1, (n) ->
 
 Here's how we would "un-nest" it with Ctrl.
 
+```coffeescript
     Ctrl.run(
       (ctrl) ->
         oneArgTimeout 1, ctrl.collect()
@@ -74,24 +81,28 @@ Here's how we would "un-nest" it with Ctrl.
       (ctrl) ->
         console.log("slept for #{ctrl.result}")
     )
+```
 
 ## Problem: synchronizing async calls
 
 Consider the following code that is trying to execute both calls to `oneArgTimeout` in parallel, collect the results, and then call `weAreDone` with the results after both of them are finished.
 
-    finished_count = 0
-    results = []
-    callback = (result) ->
-      finished_count += 1
-      results.push(result)
-      if finished_count == 2
-        weAreDone(results)
+```coffeescript
+finished_count = 0
+results = []
+callback = (result) ->
+  finished_count += 1
+  results.push(result)
+  if finished_count == 2
+    weAreDone(results)
 
-    oneArgTimeout(1, callback)
-    oneArgTimeout(1, callback)
+oneArgTimeout(1, callback)
+oneArgTimeout(1, callback)
+```
 
 Now with Ctrl.
 
+```coffeescript
     Ctrl.run(
       (ctrl) ->
         oneArgTimeout(1, ctrl.collect())
@@ -99,6 +110,7 @@ Now with Ctrl.
       (ctrl) ->
         weAreDone(ctrl.results)
     )
+```
 
 Oh man, that was sweet.
 
@@ -115,23 +127,27 @@ as access results from the previous step.
 If you call `collect` only once in a step, then you can access the
 results with `result` (notice it's singular) from the next step.
 
+```coffeescript
     Ctrl.run(
       (ctrl) ->
         oneArgTimeout 1.2, ctrl.collect()
       (ctrl) ->
         console.log(ctrl.result)
     )
+```
 
 That outputs `1.2`, but what if the callback is invoked with multiple
 arguments?
 
 
+```coffeescript
     Ctrl.run(
       (ctrl) ->
         twoArgTimeout 1.2, "hi", ctrl.collect()
       (ctrl) ->
         console.log(ctrl.result)
     )
+```
 
 That outputs `[ 1.2, 'hi' ]`, i.e. `ctrl.result` is an array.
 
@@ -140,6 +156,7 @@ That outputs `[ 1.2, 'hi' ]`, i.e. `ctrl.result` is an array.
 If `collect` is called multiple times, then `results` (notice it's
 plural) holds the results corresponding to each call of `collect`.
 
+```coffeescript
     Ctrl.run(
       (ctrl) ->
         twoArgTimeout 2, "hi", ctrl.collect()
@@ -147,6 +164,7 @@ plural) holds the results corresponding to each call of `collect`.
       (ctrl) ->
         console.log(ctrl.results)
     )
+```
 
 That outputs `[ [ 2, 'hi' ], [ 1, 'bye' ] ]`.
 
@@ -159,32 +177,37 @@ order in which the callbacks are executed.
 `named_results` being a hash (or I guess object in JS) where the keys
 correspond to the arguments.
 
-    Ctrl.run(
-      (ctrl) ->
-        twoArgTimeout 1, "hi", ctrl.collect("result1")
-        twoArgTimeout 2, "bye", ctrl.collect("result2")
-      (ctrl) ->
-        console.log(ctrl.named_results["result1"])
-        console.log(ctrl.named_results["result2"])
-    )
+```coffeescript
+Ctrl.run(
+  (ctrl) ->
+    twoArgTimeout 1, "hi", ctrl.collect("result1")
+    twoArgTimeout 2, "bye", ctrl.collect("result2")
+  (ctrl) ->
+    console.log(ctrl.named_results["result1"])
+    console.log(ctrl.named_results["result2"])
+)
 
 Results in the output:
 
-    [ 1, "hi" ]
-    [ 2, "bye" ]
+```javascript
+[ 1, "hi" ]
+[ 2, "bye" ]
+```
 
 Or you can unpack arguments into discrete keys.
 
-    Ctrl.run(
-      (ctrl) ->
-        twoArgTimeout 1, "hi", ctrl.collect("time1", "message1")
-        twoArgTimeout 2, "bye", ctrl.collect("time2", "message2")
-      (ctrl) ->
-        console.log(ctrl.named_results["time1"])
-        console.log(ctrl.named_results["message1"])
-        console.log(ctrl.named_results["time2"])
-        console.log(ctrl.named_results["message2"])
-    )
+```coffeescript
+Ctrl.run(
+  (ctrl) ->
+    twoArgTimeout 1, "hi", ctrl.collect("time1", "message1")
+    twoArgTimeout 2, "bye", ctrl.collect("time2", "message2")
+  (ctrl) ->
+    console.log(ctrl.named_results["time1"])
+    console.log(ctrl.named_results["message1"])
+    console.log(ctrl.named_results["time2"])
+    console.log(ctrl.named_results["message2"])
+)
+```
 
 Which results in:
 
@@ -197,23 +220,24 @@ Which results in:
 
 What happens if a step results in an error and we want to stop execution
 of any remaining steps.  That's what the `stop` method is for.
-
-    Ctrl.run(
-      (ctrl) ->
-        redis.get key, ctrl.collect()
-      (ctrl) ->
-        error = ctrl.result[0]
-        value = ctrl.result[1]
-        if error?
-          console.log("oops, error with redis: #{error}")
-          ctrl.stop()
-        else
-          redis.get value, ctrl.collect()
-      (ctrl) ->
-        error = ctrl.result[0]
-        value = ctrl.result[1]
-        console.log("final value is #{value}")
-    )
+```coffeescript
+Ctrl.run(
+  (ctrl) ->
+    redis.get key, ctrl.collect()
+  (ctrl) ->
+    error = ctrl.result[0]
+    value = ctrl.result[1]
+    if error?
+      console.log("oops, error with redis: #{error}")
+      ctrl.stop()
+    else
+      redis.get value, ctrl.collect()
+  (ctrl) ->
+    error = ctrl.result[0]
+    value = ctrl.result[1]
+    console.log("final value is #{value}")
+)
+```
 
 If there is an error, then the 3rd step will never be executed.
 
@@ -222,13 +246,15 @@ If there is an error, then the 3rd step will never be executed.
 You don't have to pass the Ctrl object to each step.  You can just use
 the power of closures instead.
 
-    ctrl = Ctrl.new()
-    ctrl.run(
-      ->
-        oneArgTimeout 1, ctrl.collect()
-      ->
-        console.log(ctrl.result)
-    )
+```coffeescript
+ctrl = Ctrl.new()
+ctrl.run(
+  ->
+    oneArgTimeout 1, ctrl.collect()
+  ->
+    console.log(ctrl.result)
+)
+```
 
 Anytime a one element array would be returned in the results, just the
 element will be returned instead.
