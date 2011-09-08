@@ -37,8 +37,10 @@ to the callback.
 
 Example:
 
-    twoArgTimeout 5, "I slept", (n, message) ->
-      console.log("#{message} for #{n} seconds")
+```coffeescript
+twoArgTimeout 5, "I slept", (n, message) ->
+  console.log("#{message} for #{n} seconds")
+```
 
 Outputs:
 
@@ -49,12 +51,14 @@ Outputs:
 Consider this code that is trying to execute each call to
 `oneArgTimeout` serially.
 
-    oneArgTimeout 1, (n) ->
+```coffeescript
+oneArgTimeout 1, (n) ->
+  console.log("slept for #{n}")
+  oneArgTimeout 2, (n) ->
+    console.log("slept for #{n}")
+    oneArgTimeout 3, (n) ->
       console.log("slept for #{n}")
-      oneArgTimeout 2, (n) ->
-        console.log("slept for #{n}")
-        oneArgTimeout 3, (n) ->
-          console.log("slept for #{n}")
+```
 
 Here's how we would "un-nest" it with Ctrl.
 
